@@ -3,6 +3,8 @@ from urlparse import urlparse
 import urllib
 import urllib2
 
+import datetime
+
 
 class YoutubeAPI:
     youtube_key = "AIzaSyDOa1aEANwXp_TF8O57FmyT_Idu7vb7PWA"
@@ -103,7 +105,6 @@ class YoutubeAPI:
                 return items_array
 
     def api_get(self, url, params):
-
         params['key'] = self.youtube_key
 
         f = urllib2.urlopen(url + "?" + urllib.urlencode(params))
@@ -129,14 +130,36 @@ class YoutubeAPI:
             return ''
         return res[0]['id']['videoId']
 
+    def parseToSeconds(self, param):
+        a = param.replace("P", " ").replace("T", " ").replace("M", " ").replace("S", " ")
+        spl = a.split()
+        res = int(spl[0])*60 + int(spl[1])
+        return res
+
+
+
+    def getVideoDuration(self, videoId):
+        link = "https://www.googleapis.com/youtube/v3/videos"
+        params = {"key": self.youtube_key, "part": "contentDetails", "id": "9bZkp7q19f0"}
+        f = urllib2.urlopen(link + "?" + urllib.urlencode(params))
+        data = f.read()
+        f.close()
+        obj = json.JSONDecoder().decode(data)
+        a = obj["items"]
+        b = a[0]
+        c = b["contentDetails"]
+        d = c["duration"]
+        print(data)
+        return self.parseToSeconds(d)
+
+
+
 
     def _parse_url_path(self, url):
-
         array = urlparse(url)
         return array['path']
 
     def _parse_url_query(self, url):
-
         array = urlparse(url)
         query = array['query']
         query_parts = query.split('&')
@@ -149,10 +172,3 @@ class YoutubeAPI:
                 params[item[0]] = item[1]
 
         return params
-
-youtube = YoutubeAPI()
-
-
-print(youtube.getMp3DownloadLink(youtube.getVideoId("icejfish")))
-print(youtube.getVideoSearchSuggestions("batman", 10))
-
