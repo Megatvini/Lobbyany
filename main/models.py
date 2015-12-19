@@ -6,8 +6,7 @@ from django.db import models
 
 # User
 class User(models.Model):
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
+
     email = models.EmailField(unique=True)
     password = models.CharField(max_length=16)
 
@@ -15,6 +14,9 @@ class User(models.Model):
 # Playlist
 
 class Playlist(models.Model):
+
+    author = models.ForeignKey(User)
+
     ip = models.IPAddressField()
     name = models.CharField(max_length=100)
 
@@ -22,6 +24,7 @@ class Playlist(models.Model):
         return self.name
 
     songs = models.ManyToManyField(Song)
+    banned_songs = models.ManyToManyField(Song)
 
 
 # Song
