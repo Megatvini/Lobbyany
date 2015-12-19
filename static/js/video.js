@@ -8,17 +8,19 @@ firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 //    after the API code downloads.
 var player;
 function onYouTubeIframeAPIReady() {
+
+}
+function addPlayer(video){
     player = new YT.Player('player', {
         height: '390',
         width: '100%',
-        videoId: 'HQmmM_qwG4k',
+        videoId: video,
         events: {
             'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange
         }
     });
 }
-
 // 4. The API will call this function when the video player is ready.
 function onPlayerReady(event) {
     event.target.playVideo();

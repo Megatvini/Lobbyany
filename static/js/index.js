@@ -1,10 +1,9 @@
-var host = "http://192.168.43.188:8000";
+var host = "";
 var playlist = undefined;
 var token = undefined;
+var isAdmin = false;
+var curVideoURL = 'HQmmM_qwG4k';
 
-function addPlayList(song){
-    
-}
 function update(){
     $.ajax({
         url: host + "/getplaylist/",
@@ -13,7 +12,7 @@ function update(){
             token: token   
         },
         success: function(e){
-            playlist = e;
+            playlist = JSON.parse(e.playlist);
             display();
         },
         error: function(e){
@@ -23,15 +22,15 @@ function update(){
     });
 }
 function main(){
-    fetchToken();
-    loadPlayList();
+    console.log("main");
+    update();
     setInterval(update,5000);
 }
 function sort(){
     var output = [];
     var max = 10000;
     var index = -1;
-    while(playlist.songs){
+    while(playlist.songs.length > 0){
         max = 10000;
         for(var i1=0;i1<playlist.songs.length;++i1){
             if(max>=playlist.songs[i1].rating){
@@ -39,15 +38,21 @@ function sort(){
             }
         }
         output.push(playlist.songs[index]);
-        playlist.songs.splice(index,1);
+        playlist.songs.splice(index+1,1);
     }
     playlist.songs=output;
 }
 function display(){
-    sort();
+    //sort();
     var output="<br><br>";
     for(var i=0;i<playlist.songs.length;++i){
         output+='<h5 class="bordered">'+playlist.songs[i].name+' '+playlist.songs[i].rating+'<span style="float:right"><a href="#" onclick="upvote(\''+ playlist.songs[i].name +'\')" style="color:red" class="fa fa-thumbs-down fa-lg"></a> <a href="#" onclick="downvote(\''+ playlist.songs[i].name +'\')" style="color:green" class="fa fa-thumbs-up fa-lg"></a></span></h5>';
+    }
+    if(isAdmin) {
+        $("#player").css("visibility","visible");
+        addPlayer(curVideoURL);
+    }else{
+        $("#player").css("visibility","hidden");
     }
     $("#playlist").html(output);
     $("#songTitle").html(playlist.lastsong);
@@ -59,42 +64,59 @@ function downvote(songname){
        
 }
 function fetchToken(){
-    var arr = document.cookie.split("lobbyAny=");
-    if(arr.length > 2){
+    var arr = document.cookie.split("token=");
+    console.log(arr.length);
+    if(arr.length < 2){
         loadAuthScreen();
         return;
     }
     token = arr[1];
 }
-function loadAuthScreen(){
-    $.ajax({
-        url: host + "/login.html",
-        type: "GET",
-        data: {},
-        success: function(e){
-            $(document).html(e);
-        },
-        error: function(e){
-            
-        },
-        dataType: "html"
-    });
-}
-function loadPlayList(){
-    $.ajax({
-        url: host + "/getplaylist/",
+function addSong(name){
+     $.ajax({
+        url: host + "/addsong/",
         type: "POST",
         data: {
-            token: token   
+            token: token,
+            songname: name
         },
         success: function(e){
-            playlist = e;
-            display();
+            update();
         },
         error: function(e){
-            loadAuthScreen();
+            //NOT FOUND
         },
         dataType: "json"
     });
 }
-main();
+function checkAdmin(){
+    fetchToken();
+    $.ajax({
+        url: host + "/isadmin/",
+        type: "POST",
+        data: {
+            token: token
+        },
+        success: function(e){
+            var isa = e
+            console.log(isa.isadmin);
+            if(isa.isadmin=="yes"){
+                isAdmin=true;
+            }else{
+                isAdmin=false;
+            }
+            main();
+        },
+        error: function(e){
+            //NOT FOUND
+            isAdmin=false;
+            main();
+        },
+        dataType: "json"
+    });
+}
+function loadAuthScreen(){
+    console.log("redirecting");
+    $(location).attr('href', '/loginForm');
+}
+checkAdmin();

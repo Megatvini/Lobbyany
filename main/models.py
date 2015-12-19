@@ -39,7 +39,6 @@ class Playlist(models.Model):
 
     songs = models.ManyToManyField(Song, related_name='songs')
     banned_songs = models.ManyToManyField(Song, related_name='banned_songs')
-    current_song = models.ForeignKey(Song, related_name='last_song', default=None)
 
     def get_json(self):
         pre_data = json.loads(serializers.serialize('json', [self])[1:-1])['fields']
@@ -50,8 +49,6 @@ class Playlist(models.Model):
                 songs.append(json.loads(s.get_json()))
         pre_data['songs'] = songs
         del pre_data['banned_songs']
-
-        pre_data['last_song'] = self.current_song.get_json()
 
         pre_data['author'] = self.author.email
 

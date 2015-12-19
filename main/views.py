@@ -1,18 +1,21 @@
 # Create your views here.
-import requests
-import urllib
 
-import urlfetch as urlfetch
 from django.http import JsonResponse, HttpResponse
+from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 
+from YoutubeAPI import YoutubeAPI
 from helpers import get_random_token, get_client_ip
 from main.models import User, Playlist, Song
 
-from YoutubeAPI import YoutubeAPI
-
 TOKENS = {}
 
+
+def index(request):
+    return render_to_response('../templates/index.html')
+
+def logH(request):
+    return render_to_response("../templates/login.html")
 
 @csrf_exempt
 def register(request):
@@ -81,11 +84,10 @@ def getplaylist(request):
 
     if request.method == 'POST':
         token = request.POST.get('token', '')
-
         if token and token in TOKENS:
-            user = TOKENS[token]
+            ip = get_client_ip(request)
 
-            play_list = Playlist.objects.get(author=user)
+            play_list = Playlist.objects.get(ip=ip)
 
             if play_list:
                 data = play_list
@@ -103,9 +105,9 @@ def isadmin(request):
         if token and token in TOKENS:
             user = TOKENS[token]
 
-            play_list = Playlist.objects.get(author=user)
+            play_list = Playlist.objects.filter(author=user)
 
-            if play_list and play_list.ip == get_client_ip(request):
+            if play_list and play_list[0].ip == get_client_ip(request):
                 data = 'yes'
             else:
                 data = 'no'

@@ -1,4 +1,4 @@
-var host = "http://192.168.43.188:8000";
+var host = "";
 var token = undefined;
 function auth(){
     $.ajax({
@@ -9,8 +9,8 @@ function auth(){
             password: $("#password").val()
         },
         success: function(e){
-            token = e;
-            document.cookie="token="+token;
+            token = e.token;
+            document.cookie="token="+token + "; path=/";
             redirectToIndex();
         },
         error: function(e){
@@ -19,7 +19,7 @@ function auth(){
     });
 }
 function redirectToIndex(){
-    
+    $(location).attr('href', '/');
 }
 function loginFailed(){
     
