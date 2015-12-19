@@ -1,0 +1,20 @@
+.loginForm{
+    position:relative;
+    width:30%;
+}
+.mbtn{
+    background-image: linear-gradient(to bottom,#000 0,#001 100%);
+    background-color: #000;
+    border-color: #000;
+    color:white;
+}
+.mbtn:hover{
+    background-color: #666;
+    background-position: bottom;
+    color:white;
+}
+body{
+    background-image:url("../images/bg.png");
+    background-repeat: no-repeat;
+    background-position: 20 12 -10 -10;
+}
