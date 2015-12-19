@@ -1,0 +1,12 @@
+body{
+    background-image:url("../images/indexbg.jpg");  
+}
+a:hover{
+    text-decoration: none;
+}
+.bordered{
+    border-bottom-color: black;
+    border-bottom-style: groove;
+    border-bottom-width: 2px;
+    padding-bottom: 4px;
+}

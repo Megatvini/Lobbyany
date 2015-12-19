@@ -3,8 +3,6 @@ from urlparse import urlparse
 import urllib
 import urllib2
 
-import datetime
-
 
 class YoutubeAPI:
     youtube_key = "AIzaSyDOa1aEANwXp_TF8O57FmyT_Idu7vb7PWA"
@@ -156,10 +154,12 @@ class YoutubeAPI:
 
 
     def _parse_url_path(self, url):
+
         array = urlparse(url)
         return array['path']
 
     def _parse_url_query(self, url):
+
         array = urlparse(url)
         query = array['query']
         query_parts = query.split('&')
@@ -172,3 +172,10 @@ class YoutubeAPI:
                 params[item[0]] = item[1]
 
         return params
+
+#youtube = YoutubeAPI()
+
+
+# print(youtube.getMp3DownloadLink(youtube.getVideoId("icejfish")))
+# print(youtube.getVideoSearchSuggestions("batman", 10))
+
