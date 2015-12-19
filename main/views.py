@@ -1,14 +1,10 @@
 # Create your views here.
 import requests
 import urllib
-
-import urlfetch as urlfetch
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-
 from helpers import get_random_token, get_client_ip
-from main.models import User, Playlist, Song
-
+from main.models import User, Playlist, Song, Favorite
 from YoutubeAPI import YoutubeAPI
 
 TOKENS = {}
@@ -131,6 +127,14 @@ def vote(request):
                     if s.name == song_name:
                         s.rating += 1 if vote == 'up' else -1
                         s.save()
+
+                        user = TOKENS[token]
+
+                        user = User.objects.get(email=user.email)
+                        favorite = in_favorits(s, user)
+
+                        update_favorite_rating(favorite, s, user, 4)
+
                         status = 200
                         break
 
@@ -160,6 +164,62 @@ def addsong(request):
 
                     play_list.songs.add(s)
 
+                    user = TOKENS[token]
+
+                    user = User.objects.get(email=user.email)
+                    favorite = in_favorits(s, user)
+
+                    update_favorite_rating(favorite, s, user, 10)
+
                     status = 200
 
     return HttpResponse(status=status)
+
+
+@csrf_exempt
+def getFavoriteLobby(request):
+    data = None
+
+    if request.method == 'POST':
+        token = request.POST.get('token', '')
+
+        if token and token in TOKENS:
+            user = TOKENS[token]
+
+            user = User.objects.get(email=user.email)
+
+            play_lists = Playlist.objects.all()
+
+            current_best = 0
+            best_play_list = None
+
+            for play_list in play_lists:
+                criteria = 0
+                for song in play_list.songs.all():
+                    favorite = in_favorits(song, user)
+                    if favorite is not None:
+                        criteria += favorite.points
+                if criteria > current_best:
+                    current_best = criteria
+                    best_play_list = play_lists
+
+            if best_play_list:
+                data = best_play_list
+
+    return JsonResponse({'favorite_playlist': data.get_json() if data else None})
+
+
+def update_favorite_rating(favorite, s, user, point):
+    if favorite:
+        favorite.points += point / 2
+    else:
+        favorite = Favorite(song=s, points=point)
+        favorite.save()
+        user.favorites.add(favorite)
+
+
+def in_favorits(s, user):
+    for favorite in user.favorites.all():
+        if favorite.song.name == s.name:
+            return favorite
+    return None
