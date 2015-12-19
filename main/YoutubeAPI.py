@@ -5,6 +5,7 @@ import urllib2
 
 
 class YoutubeAPI:
+
     youtube_key = "AIzaSyDOa1aEANwXp_TF8O57FmyT_Idu7vb7PWA"
 
     apis = {
@@ -105,6 +106,7 @@ class YoutubeAPI:
     def api_get(self, url, params):
 
         params['key'] = self.youtube_key
+        print url + "?" + urllib.urlencode(params)
 
         f = urllib2.urlopen(url + "?" + urllib.urlencode(params))
         data = f.read()
@@ -150,9 +152,9 @@ class YoutubeAPI:
 
         return params
 
-youtube = YoutubeAPI()
+#youtube = YoutubeAPI()
 
 
-print(youtube.getMp3DownloadLink(youtube.getVideoId("icejfish")))
-print(youtube.getVideoSearchSuggestions("batman", 10))
+# print(youtube.getMp3DownloadLink(youtube.getVideoId("icejfish")))
+# print(youtube.getVideoSearchSuggestions("batman", 10))
 
