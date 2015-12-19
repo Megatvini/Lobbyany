@@ -83,7 +83,6 @@ def getplaylist(request):
         token = request.POST.get('token', '')
 
         if token and token in TOKENS:
-            print token
             user = TOKENS[token]
 
             play_list = Playlist.objects.get(author=user)
@@ -106,7 +105,7 @@ def isadmin(request):
 
             play_list = Playlist.objects.get(author=user)
 
-            if play_list:
+            if play_list and play_list.ip == get_client_ip(request):
                 data = 'yes'
             else:
                 data = 'no'
@@ -156,20 +155,7 @@ def addsong(request):
                 video_id = youtube.getVideoId(songname)
 
                 if video_id:
-
-                    url = youtube.getMp3DownloadLink(video_id)
-
-                    r = requests.get(url)
-                    # location = r.headers['Location']
-                    #
-                    # testfile = urllib.URLopener()
-                    filename = "main/music/" + songname + ".mp3"
-                    # testfile.retrieve(location, filename)
-
-                    with open(filename, "wb") as f:
-                        f.write(r.conwtent)
-
-                    s = Song(name=songname, rating=0, url=filename)
+                    s = Song(name=songname, rating=0, video_id=video_id)
                     s.save()
 
                     play_list.songs.add(s)
