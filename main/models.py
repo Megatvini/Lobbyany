@@ -6,22 +6,6 @@ from django.db import models
 
 # Create your models here.
 
-# favorite songs
-class Favorite(models.Model):
-    points = models.IntegerField(default=10)
-    song = models.ForeignKey(Song)
-
-# User
-class User(models.Model):
-    email = models.EmailField(unique=True)
-    password = models.CharField(max_length=16)
-
-    def get_json(self):
-        pre_data = json.loads(serializers.serialize('json', [self])[1:-1])['fields']
-        return json.dumps(pre_data, separators=(',', ':'))
-
-    # favorite songs
-    favorites = models.ManyToManyField(Favorite)
 
 
 # Song
@@ -34,6 +18,25 @@ class Song(models.Model):
     def get_json(self):
         pre_data = json.loads(serializers.serialize('json', [self])[1:-1])['fields']
         return json.dumps(pre_data, separators=(',', ':'))
+
+# favorite songs
+class Favorite(models.Model):
+    points = models.IntegerField(default=10)
+    song = models.ForeignKey(Song)
+
+
+
+# User
+class User(models.Model):
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=16)
+
+    def get_json(self):
+        pre_data = json.loads(serializers.serialize('json', [self])[1:-1])['fields']
+        return json.dumps(pre_data, separators=(',', ':'))
+
+    # favorite songs
+    favorites = models.ManyToManyField(Favorite)
 
 
 # Playlist
