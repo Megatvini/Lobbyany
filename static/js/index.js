@@ -27,7 +27,7 @@ function update(){
 function main(){
     console.log("main");
     update();
-    setInterval(update,5000);
+    //setInterval(update,5000);
 }
 function callNext(){
     document.cookie="curtime=0";

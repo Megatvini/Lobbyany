@@ -92,7 +92,7 @@ def getplaylist(request):
             if play_list:
                 data = play_list[0]
 
-    return JsonResponse({'playlist': data.get_json() if data else None})
+    return JsonResponse({'playlist': data.get_json() if data.songs else None})
 
 
 @csrf_exempt
@@ -177,13 +177,11 @@ def playnext(request):
             ip = get_client_ip(request)
 
             play_list = Playlist.objects.filter(ip=ip)
-
             if play_list and play_list[0].songs.all().count() > 0:
-                cur_song = play_list[0].songs.all()[0]
+                cur_song = play_list[0].songs.all().order_by('-rating')[0]
                 play_list[0].songs.remove(cur_song)
-                cur_song.rating = 1
-                cur_song.save()
-                play_list[0].songs.add(cur_song)
+                play_list[0].save()
+                #play_list[0].songs.add(cur_song)
 
                 status = 200
 
