@@ -27,10 +27,10 @@ function update(){
 function main(){
     console.log("main");
     update();
-    //setInterval(update,5000);
+    setInterval(update,5000);
 }
 function callNext(){
-    document.cookie="curtime=0";
+    document.cookie="token="+token+";path=/";
     console.log("cur next");
     $.ajax({
         url: host + "/playnext/",
@@ -39,6 +39,7 @@ function callNext(){
             token: token
         },
         success: function(e){
+
             update();
         },
         error: function(e){
@@ -60,8 +61,14 @@ function display(){
     }
     if(playlist.songs.length>0 && !isPlaying && isAdmin)
         addPlayer(playlist.songs[0].video_id);
+    if(playlist.songs.length <= 0 ){
+        $("#cover").css("visibility","hidden");
+        $("#songTitle").html("-");
+    }else{
+        $("#cover").css("visibility","visible");
+        $("#songTitle").html(playlist.songs[0].name);
+    }
     $("#playlist").html(output);
-    $("#songTitle").html(playlist.songs[0].name);
 }
 function upvote(songname){
     $.ajax({
@@ -106,7 +113,7 @@ function fetchToken(){
         loadAuthScreen();
         return;
     }
-    token = arr[1];
+    token = arr[1].split(";")[0];
 }
 function addSong(){
      $.ajax({
@@ -140,7 +147,7 @@ function checkAdmin(){
                 isAdmin=true;
             }else{
                 isAdmin=false;
-                $("#cover").hide();
+                $("#cover").css("visibility","hidden");
             }
             main();
         },

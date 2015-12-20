@@ -48,10 +48,11 @@ class Playlist(models.Model):
 
         ordered_songs = sorted(self.songs.all(), key=operator.attrgetter('rating'), reverse=True)
 
-        songs.append(json.loads(ordered_songs[0].get_json()))
-        for s in ordered_songs[1:]:
-            if s not in self.banned_songs.all():
-                songs.append(json.loads(s.get_json()))
+        if len(ordered_songs) > 0:
+            songs.append(json.loads(ordered_songs[0].get_json()))
+            for s in ordered_songs[1:]:
+                if s not in self.banned_songs.all():
+                    songs.append(json.loads(s.get_json()))
         pre_data['songs'] = songs
         del pre_data['banned_songs']
 

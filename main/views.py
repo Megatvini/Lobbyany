@@ -54,11 +54,11 @@ def login(request):
         token = None
 
         if email and password:
-            user = User.objects.get(email=email)
+            user = User.objects.filter(email=email)
 
-            if user and user.password == password:
+            if user and user[0].password == password:
                 token = get_random_token()
-                TOKENS[token] = user
+                TOKENS[token] = user[0]
 
     return JsonResponse({'token': token})
 
@@ -92,7 +92,7 @@ def getplaylist(request):
             if play_list:
                 data = play_list[0]
 
-    return JsonResponse({'playlist': data.get_json() if data.songs else None})
+    return JsonResponse({'playlist': data.get_json() if data else None})
 
 
 @csrf_exempt
@@ -157,7 +157,7 @@ def addsong(request):
                 video_id = youtube.getVideoId(songname)
 
                 if video_id:
-                    s = Song(name=songname, rating=0, video_id=video_id)
+                    s = Song(name=songname, rating=1, video_id=video_id)
                     s.save()
 
                     play_list[0].songs.add(s)
