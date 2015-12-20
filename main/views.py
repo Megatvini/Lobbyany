@@ -87,10 +87,10 @@ def getplaylist(request):
         if token and token in TOKENS:
             ip = get_client_ip(request)
 
-            play_list = Playlist.objects.get(ip=ip)
+            play_list = Playlist.objects.filter(ip=ip)
 
             if play_list:
-                data = play_list
+                data = play_list[0]
 
     return JsonResponse({'playlist': data.get_json() if data else None})
 
@@ -119,17 +119,17 @@ def isadmin(request):
 def vote(request):
     status = 403
 
-    if request.POST.method == 'POST':
+    if request.method == 'POST':
         token = request.POST.get('token', '')
         song_name = request.POST.get('songname', '')
         vote = request.POST.get('vote', '')
 
         if token and token in TOKENS:
             ip = get_client_ip(request)
-            play_list = Playlist.objects.get(ip=ip)
+            play_list = Playlist.objects.filter(ip=ip)
 
             if play_list:
-                for s in play_list.songs.all():
+                for s in play_list[0].songs.all():
                     if s.name == song_name:
                         s.rating += 1 if vote == 'up' else -1
                         s.save()
@@ -150,7 +150,7 @@ def addsong(request):
         if token and songname and token in TOKENS:
             ip = get_client_ip(request)
 
-            play_list = Playlist.objects.get(ip=ip)
+            play_list = Playlist.objects.filter(ip=ip)
 
             if play_list:
                 youtube = YoutubeAPI()
@@ -160,8 +160,31 @@ def addsong(request):
                     s = Song(name=songname, rating=0, video_id=video_id)
                     s.save()
 
-                    play_list.songs.add(s)
+                    play_list[0].songs.add(s)
 
                     status = 200
+
+    return HttpResponse(status=status)
+
+@csrf_exempt
+def playnext(request):
+    status = 403
+
+    if request.method == 'POST':
+        token = request.POST.get('token', '')
+
+        if token and token in TOKENS:
+            ip = get_client_ip(request)
+
+            play_list = Playlist.objects.filter(ip=ip)
+
+            if play_list and play_list[0].songs.all().count() > 0:
+                cur_song = play_list[0].songs.all()[0]
+                play_list[0].songs.remove(cur_song)
+                cur_song.rating = 1
+                cur_song.save()
+                play_list[0].songs.add(cur_song)
+
+                status = 200
 
     return HttpResponse(status=status)

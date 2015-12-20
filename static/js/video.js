@@ -1,23 +1,18 @@
-var tag = document.createElement('script');
 
-tag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-// 3. This function creates an <iframe> (and YouTube player)
-//    after the API code downloads.
 var player;
+var timeIsSet=false;
+
 function onYouTubeIframeAPIReady() {
 
 }
 function addPlayer(video){
-    player = new YT.Player('player', {
+     player = new YT.Player('player', {
         height: '390',
         width: '100%',
         videoId: video,
         events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
+          'onReady': onPlayerReady,
+          'onStateChange': onPlayerStateChange
         }
     });
 }
@@ -30,9 +25,27 @@ function onPlayerReady(event) {
 //    The function indicates that when playing a video (state=1),
 //    the player should play for six seconds and then stop.
 var done = false;
+function getTimeFromCookies(){
+    var k = document.cookie.split("curtime=");
+    if(k.length < 2)
+        return 0;
+    var k1= k[1].split(";");
+    return parseFloat(k1[0]);
+}
 function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING && !done) {
         done = true;
+    }
+    if(event.data == 0){
+        isPlaying = false;
+        callNext();
+    }
+    if(event.data == 1){
+        if(!timeIsSet){
+            player.seekTo(getTimeFromCookies());
+            timeIsSet=true;
+        }
+        isPlaying = true;
     }
     setTimeout(function(){$("#player").css("visibility","visible");},3000);
 }

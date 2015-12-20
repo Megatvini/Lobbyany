@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import json
 
+import operator
 from django.core import serializers
 from django.db import models
 
@@ -21,7 +22,7 @@ class User(models.Model):
 
 class Song(models.Model):
     name = models.CharField(max_length=100)
-    rating = models.IntegerField(default=0)
+    rating = models.IntegerField(default=1)
     video_id = models.CharField(max_length=1000)
 
     def get_json(self):
@@ -44,7 +45,11 @@ class Playlist(models.Model):
         pre_data = json.loads(serializers.serialize('json', [self])[1:-1])['fields']
 
         songs = []
-        for s in self.songs.all():
+
+        ordered_songs = sorted(self.songs.all(), key=operator.attrgetter('rating'), reverse=True)
+
+        songs.append(json.loads(ordered_songs[0].get_json()))
+        for s in ordered_songs[1:]:
             if s not in self.banned_songs.all():
                 songs.append(json.loads(s.get_json()))
         pre_data['songs'] = songs

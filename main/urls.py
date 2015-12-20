@@ -12,4 +12,5 @@ urlpatterns = patterns('',
                        url(r'^isadmin/$', views.isadmin, name='isadmin'),
                        url(r'^vote/$', views.vote, name='vote'),
                        url(r'^addsong/$', views.addsong, name='addsong'),
+                       url(r'^playnext/$', views.playnext, name='playnext'),
                        )
